@@ -44,18 +44,22 @@ func RequireAuth(ctx *fiber.Ctx) error {
 		}
 
 		id := claims["sub"]
+		if id == "" {
+			return ctx.JSON(&fiber.Map{
+				"status":  false,
+				"message": "User not found",
+			})
+		}
 
 		var user_id string
-		result := database.DB.QueryRow(`SELECT id FROM "users" where "id" = $1`, id)
-		if err != nil {
+		result := database.DB.QueryRow(`SELECT id FROM "users" where "id" = $1`, id).Scan(&user_id)
+
+		if result != nil {
 			return ctx.JSON(fiber.Map{
 				"status":  false,
 				"message": "Failed to Login",
 			})
 		}
-
-		// the order of variable is similar to the order of table
-		result.Scan(&user_id)
 
 		ctx.Set("user", user_id)
 		return ctx.Next()
