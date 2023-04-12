@@ -26,7 +26,13 @@ func Login(ctx *fiber.Ctx) error {
 
 	var userExists bool
 	// check email
-	database.DB.QueryRow(`SELECT EXISTS(SELECT 1 from "users" where "email"=$1)`, body.Email).Scan(&userExists)
+	err = database.DB.QueryRow(`SELECT EXISTS(SELECT 1 from "users" where "email"=$1)`, body.Email).Scan(&userExists)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"status":  false,
+			"message": "Something Went Wrong",
+		})
+	}
 	if !userExists {
 		return ctx.JSON(&fiber.Map{
 			"status":  false,
@@ -45,7 +51,13 @@ func Login(ctx *fiber.Ctx) error {
 	}
 
 	// the order of variable is similar to the order of table
-	result.Scan(&user.Id, &user.Name, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt, &user.Password)
+	err = result.Scan(&user.Id, &user.Name, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt, &user.Password)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"status":  false,
+			"message": "Something Went Wrong",
+		})
+	}
 
 	// compare password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
@@ -115,7 +127,13 @@ func Signup(ctx *fiber.Ctx) error {
 	// check if email or phone number already existance
 	checkExistingStmt := `SELECT EXISTS(SELECT 1 from "users" WHERE "email" = $1 OR "phone" = $2 )`
 	var exists bool
-	database.DB.QueryRow(checkExistingStmt, user.Email, user.Phone).Scan(&exists)
+	err = database.DB.QueryRow(checkExistingStmt, user.Email, user.Phone).Scan(&exists)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"status":  false,
+			"message": "Something Went Wrong",
+		})
+	}
 	if exists {
 		return ctx.JSON(&fiber.Map{
 			"status":  false,
