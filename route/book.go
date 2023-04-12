@@ -9,6 +9,6 @@ import (
 func BookRoutes(router fiber.Router) {
 	router.Get("/", controller.GetBooks)
 	router.Post("/", controller.AddBook)
-	router.Put("/", controller.UpdateBook)
-	router.Delete("/", controller.DeleteBook)
+	router.Put("/:book_id", controller.UpdateBook)
+	router.Delete("/:book_id", controller.DeleteBook)
 }
