@@ -14,9 +14,11 @@ type User struct {
 
 type Book struct {
 	Id         string    `json:"id"`
-	Name       string    `json:"name"`
-	AuthorName string    `json:"author_name"`
+	UserID     string    `json:"user_id" validate:"required"`
+	Name       string    `json:"name" validate:"required"`
+	AuthorName string    `json:"author_name" validate:"required"`
 	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type ErrorResponse struct {
