@@ -2,6 +2,7 @@ package main
 
 import (
 	"bookstore/helper"
+	"bookstore/middleware"
 	"bookstore/route"
 	"fmt"
 	"os"
@@ -25,8 +26,8 @@ func main() {
 	}
 
 	app.Route("/auth", route.AuthRoutes)
-	app.Route("/books", route.BookRoutes)
-	app.Route("/user", route.UserRoutes)
+	app.Use(middleware.RequireAuth).Route("/books", route.BookRoutes)
+	app.Use(middleware.RequireAuth).Route("/user", route.UserRoutes)
 
 	panic(api.Listen(fmt.Sprintf(":%v", port)))
 }
