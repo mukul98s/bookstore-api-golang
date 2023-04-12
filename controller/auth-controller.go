@@ -133,20 +133,19 @@ func Signup(ctx *fiber.Ctx) error {
 	}
 
 	// create user
-	insertStmt := `INSERT INTO "users"("name", "email", "phone", "password") VALUES ($1, $2, $3, $4)`
-	result, err := database.DB.Exec(insertStmt, user.Name, user.Email, user.Phone, passwordHash)
+	var id string
+	insertStmt := `INSERT INTO "users"("name", "email", "phone", "password") VALUES ($1, $2, $3, $4) RETURNING id`
+	err = database.DB.QueryRow(insertStmt, user.Name, user.Email, user.Phone, passwordHash).Scan(&id)
 	if err != nil {
 		return ctx.JSON(&fiber.Map{
 			"status":  false,
 			"message": "Failed to signin. Please Try again !",
+			"error":   err.Error(),
 		})
 	}
 
-	// id of newly created User
-	id, _ := result.LastInsertId()
-
 	// Generate JWT and send cookie
-	token, _ := helper.GetTokens(string(rune(id)))
+	token, _ := helper.GetTokens(id)
 	cookie := fiber.Cookie{
 		Name:     "Auth",
 		Value:    token,
@@ -162,5 +161,8 @@ func Signup(ctx *fiber.Ctx) error {
 	return ctx.JSON(&fiber.Map{
 		"status":  true,
 		"message": "User Created successfully",
+		"data": &fiber.Map{
+			"id": id,
+		},
 	})
 }
