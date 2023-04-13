@@ -8,6 +8,6 @@ import (
 
 func UserRoutes(router fiber.Router) {
 	router.Get("/", controller.GetUser)
-	router.Put("/:user_id", controller.UpdateUser)
+	router.Put("/", controller.UpdateUser)
 	router.Delete("/", controller.DeleteUser)
 }
