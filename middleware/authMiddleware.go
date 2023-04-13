@@ -57,7 +57,7 @@ func RequireAuth(ctx *fiber.Ctx) error {
 		if result != nil {
 			return ctx.JSON(fiber.Map{
 				"status":  false,
-				"message": "Failed to Login",
+				"message": "User or Session not found",
 			})
 		}
 
